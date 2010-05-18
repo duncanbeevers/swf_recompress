@@ -10,11 +10,12 @@ module SWFRecompress
   class Tempfile
     def self.open(temp_stem)
       FileUtils.mkdir_p(TMP_DIR)
-      temp_filename = File.join(TMP_DIR, '%s-%i' % [ temp_stem, rand(10_000_000) ])
-      puts "tempfilename: #{temp_filename.inspect}"
+      ext           = File.extname(temp_stem)
+      temp_filename = Pathname.new(
+          File.expand_path(File.join(TMP_DIR, '%s%s' % [ File.basename(temp_stem, ext), ext ]))
+        ).relative_path_from(Pathname.new(Dir.pwd))
       begin
         File.open(temp_filename, 'w') do |f|
-          puts "Here we are in our special tempfile: #{f.inspect}"
           yield(f)
         end
       ensure
@@ -49,7 +50,7 @@ module SWFRecompress
     end
     
     def kzip_data
-      kzip('-y', data_zip_filename, data_filename)
+      kzip('-y', '-s0', data_zip_filename, data_filename)
     end
     
     def kzip(*args)
@@ -69,7 +70,7 @@ module SWFRecompress
     end
     
     def with_temp_info_file
-      Tempfile.open('info_file') do |f|
+      Tempfile.open('INFO') do |f|
         f.close
         @info_filename = f.path
         yield
@@ -77,7 +78,7 @@ module SWFRecompress
     end
     
     def with_temp_data_file
-      Tempfile.open('data_file') do |f|
+      Tempfile.open('SWF_DATA') do |f|
         f.close
         @data_filename = f.path
         yield
@@ -85,7 +86,7 @@ module SWFRecompress
     end
     
     def with_temp_data_zip_file
-      Tempfile.open('data_zip_file.zip') do |f|
+      Tempfile.open('SWF_DATA.zip') do |f|
         f.close
         @data_zip_filename = f.path
         yield
@@ -98,16 +99,17 @@ module SWFRecompress
     
     def execute(*args)
       execution_string = args.map { |arg| '"%s"' % arg }.join(' ')
-      puts "\n=== Executing #{execution_string}"
-      puts `#{execution_string}`
-      puts "\n==\n\n"
+      `#{execution_string}`
     end
   end
   
   module ClassMethods
     def recompress(filename)
-      puts "filename: #{filename.inspect}"
-      compressor = SWFRecompressor.new(filename, filename + "_compressed.swf")
+      expanded_filename = File.expand_path(filename)
+      ext               = File.extname(expanded_filename)
+      dirname           = File.dirname(expanded_filename)
+      new_filename      = File.join(dirname, '%s%s%s' % [ File.basename(expanded_filename, ext), '_compressed', ext ])
+      compressor        = SWFRecompressor.new(expanded_filename, new_filename)
       compressor.recompress!
     end
   end
