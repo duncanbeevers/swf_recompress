@@ -34,9 +34,7 @@ module SWFRecompress
     
     def recompress!
       with_tempfiles do
-        swf_extract
-        kzip_data
-        swf_inject
+        execute_commands(swf_extract, kzip_data, swf_inject)
       end
     end
     
@@ -50,11 +48,7 @@ module SWFRecompress
     end
     
     def kzip_data
-      kzip('-y', '-s0', data_zip_filename, data_filename)
-    end
-    
-    def kzip(*args)
-      execute('bin/kzip', *args)
+      kzip('-y', '-k0', '-v', data_zip_filename, data_filename)
     end
     
     def with_tempfiles
@@ -97,9 +91,20 @@ module SWFRecompress
       execute('java', '-classpath', 'src', *args)
     end
     
+    def kzip(*args)
+      execute('bin/kzip', *args)
+    end
+    
     def execute(*args)
-      execution_string = args.map { |arg| '"%s"' % arg }.join(' ')
-      `#{execution_string}`
+      args.map { |arg| '"%s"' % arg }.join(' ')
+    end
+    
+    def execute_commands(*commands)
+      execution = commands.join(' && ')
+      commands.each do |command|
+        puts "executing: #{command}"
+        puts `#{command}`
+      end
     end
   end
   
