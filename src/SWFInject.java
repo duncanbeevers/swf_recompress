@@ -8,7 +8,6 @@ public class SWFInject{
 		String outputFileName = args[2];
 		
 		DataInputStream iin=new DataInputStream(new FileInputStream(infoInputFileName));
-		String name=iin.readUTF();
 		byte version=iin.readByte();
 		int a32=iin.readInt();
 		long oldLength=iin.readLong();
