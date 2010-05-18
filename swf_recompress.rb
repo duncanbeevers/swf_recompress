@@ -15,6 +15,9 @@ module SWFRecompress
           File.expand_path(File.join(TMP_DIR, '%s%s' % [ File.basename(temp_stem, ext), ext ]))
         ).relative_path_from(Pathname.new(Dir.pwd))
       begin
+        File.open(temp_filename, 'w') do |f|
+          yield(f)
+        end
       ensure
         FileUtils.rm(temp_filename)
       end
