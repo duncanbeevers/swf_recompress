@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 module SWFRecompress
   require 'fileutils'
   require 'pathname'
@@ -130,5 +129,3 @@ module SWFRecompress
   
   extend ClassMethods
 end
-
-SWFRecompress.recompress(ARGV[0])

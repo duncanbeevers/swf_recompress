@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+require 'lib/swf_recompress'
+SWFRecompress.recompress(ARGV[0])
