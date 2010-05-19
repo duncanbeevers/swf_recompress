@@ -1,5 +1,5 @@
 module SWFRecompress
-  VERSION = "0.0.2"
+  VERSION = "0.0.3"
   
   require 'fileutils'
   require 'pathname'

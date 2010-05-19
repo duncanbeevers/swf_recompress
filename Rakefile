@@ -23,7 +23,8 @@ spec = Gem::Specification.new do |s|
   s.homepage     = "http://github.com/duncanbeevers/swf_recompress"
   s.author       = "Duncan Beevers"
   s.email        = "duncan@dweebd.com"
-  s.add_bindir('bin')
+  s.bindir       = "bin"
+  s.executables  = [ "swf_recompress" ]
 end
 
 Rake::GemPackageTask.new(spec) do |pkg|
