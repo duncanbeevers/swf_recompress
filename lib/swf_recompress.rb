@@ -1,4 +1,6 @@
 module SWFRecompress
+  VERSION = "0.0.1"
+  
   require 'fileutils'
   require 'pathname'
   
@@ -98,7 +100,7 @@ module SWFRecompress
     end
     
     def kzip(*args)
-      execute('bin/kzip', *args)
+      execute('lib/kzip', *args)
     end
     
     def zip(*args)
@@ -112,7 +114,6 @@ module SWFRecompress
     def execute_commands(*commands)
       execution = commands.join(' && ')
       commands.each do |command|
-        puts "executing: #{command}"
         puts `#{command}`
       end
     end
