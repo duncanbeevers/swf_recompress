@@ -2,28 +2,27 @@ import java.io.*;
 import java.util.zip.*;
 public class SWFExtract{
 	public static void main(String[]args)throws Exception{
-		String name = args[0];
+		String name               = args[0];
 		String dataOutputFileName = args[1];
 		String infoOutputFileName = args[2];
-		File file=new File(name);
-		DataInputStream in=new DataInputStream(new FileInputStream(file));
+		File file                 = new File(name);
+		DataInputStream in        = new DataInputStream(new FileInputStream(file));
 
-		boolean compressed=true;
-		byte first=in.readByte();
-		if(first==0x46) //'F'
-			compressed=false;
-		else if(first!=0x43) //'C'
-			noSWF("Not a swf file");
-		if(in.readByte()!=0x57)//'W'
-			noSWF("Not a swf file");
-		if(in.readByte()!=0x53)//'S'
-			noSWF("Not a swf file");
-		byte version=in.readByte();
+		boolean compressed        = true;
+		byte first                = in.readByte();
 		
-		int reportedFileSize=Integer.reverseBytes(in.readInt());
-		int actualFileSize=(int)file.length();
-		if (reportedFileSize != actualFileSize) { noSWF("Reported file size does not match actual file size"); }
+		if (first == 0x46)                //'F'
+			compressed = false;
+		else if (first != 0x43)           //'C'
+			noSWF(name, "Not a swf file");
+		if (in.readByte() != 0x57)        //'W'
+			noSWF(name, "Not a swf file");
+		if (in.readByte() != 0x53)        //'S'
+			noSWF(name, "Not a swf file");
 		
+		byte version         = in.readByte();
+		int reportedFileSize = Integer.reverseBytes(in.readInt());
+		int actualFileSize   = (int)file.length();
 		if (compressed) {
 			System.out.println("Initially compressed");
 		} else {
@@ -47,7 +46,7 @@ public class SWFExtract{
 		in2.close();
 		out.flush();
 		out.close();
-
+		
 		DataOutputStream iout=new DataOutputStream(new FileOutputStream(infoOutputFileName));
 		iout.write(version);
 		iout.writeInt((int)a32.getValue());
@@ -55,8 +54,8 @@ public class SWFExtract{
 		iout.flush();
 		iout.close();
 	}
-	private static void noSWF(String message){
-		System.err.printf("Could not compress swf: %s", message);
+	private static void noSWF(String filename, String message){
+		System.err.printf("Could not compress swf [%s]: %s", filename, message);
 		System.exit(1);
 	}
 }
