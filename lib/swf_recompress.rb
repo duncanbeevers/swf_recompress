@@ -54,7 +54,7 @@ module SWFRecompress
     end
     
     def kzip_data
-      kzip('-y', '-k0', '-v', data_zip_filename, data_filename)
+      kzip('-y', '-k0', data_zip_filename, data_filename)
     end
     
     def with_tempfiles
