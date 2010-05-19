@@ -1,25 +1,30 @@
 #!/usr/bin/env ruby
-require 'tempfile'
-
-require 'rubygems'
-require 'ruby-debug'
-
 module SWFRecompress
+  require 'fileutils'
+  require 'pathname'
+  
   ROOT    = File.dirname(__FILE__)
   TMP_DIR = File.join(ROOT, 'tmp')
   class Tempfile
     def self.open(temp_stem)
-      FileUtils.mkdir_p(TMP_DIR)
-      ext           = File.extname(temp_stem)
-      temp_filename = Pathname.new(
-          File.expand_path(File.join(TMP_DIR, '%s%s' % [ File.basename(temp_stem, ext), ext ]))
-        ).relative_path_from(Pathname.new(Dir.pwd))
       begin
+        instance_tmp_dir = nil
+        begin
+          instance_tmp_dir = File.join(TMP_DIR, rand(1_000_000).to_s)
+        end until !File.exists?(instance_tmp_dir)
+        FileUtils.mkdir_p(instance_tmp_dir)
+        ext           = File.extname(temp_stem)
+        temp_filename = Pathname.new(
+            File.expand_path(File.join(instance_tmp_dir, '%s%s' % [ File.basename(temp_stem, ext), ext ]))
+          ).relative_path_from(Pathname.new(Dir.pwd))
         File.open(temp_filename, 'w') do |f|
           yield(f)
         end
+      rescue => e
+        puts "Error: #{e}"
       ensure
         FileUtils.rm(temp_filename)
+        FileUtils.rmdir(instance_tmp_dir)
       end
     end
   end
