@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'optparse'
-require 'lib/swf_recompress'
+require File.join(File.dirname(__FILE__), '../lib/swf_recompress')
 
 options = {}
 OptionParser.new do |opts|
