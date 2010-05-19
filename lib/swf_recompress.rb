@@ -1,11 +1,12 @@
 module SWFRecompress
-  VERSION = "0.0.4"
+  VERSION = "0.0.5"
   
   require 'fileutils'
   require 'pathname'
+  require 'tempfile'
   
   ROOT    = File.join(File.dirname(__FILE__), '..')
-  TMP_DIR = File.join(ROOT, 'tmp')
+  TMP_DIR = Dir::tmpdir
   class Tempfile
     def self.open(temp_stem)
       begin
