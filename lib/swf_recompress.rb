@@ -2,7 +2,7 @@ module SWFRecompress
   require 'fileutils'
   require 'pathname'
   
-  ROOT    = File.dirname(__FILE__)
+  ROOT    = File.join(File.dirname(__FILE__), '..')
   TMP_DIR = File.join(ROOT, 'tmp')
   class Tempfile
     def self.open(temp_stem)
@@ -31,7 +31,9 @@ module SWFRecompress
   class SWFRecompressor
     attr_reader :data_filename, :data_zip_filename, :info_filename, :swf_filename, :output_filename
     def initialize(swf_filename, output_filename)
-      raise "You must specify a swf file to recompress" unless File.exists?(swf_filename)
+      if !File.exists?(swf_filename)
+        raise "The file #{swf_filename.inspect} does not exist"
+      end
       @swf_filename    = swf_filename
       @output_filename = output_filename
     end
@@ -123,6 +125,14 @@ module SWFRecompress
       dirname           = File.dirname(expanded_filename)
       new_filename      = File.join(dirname, '%s%s%s' % [ File.basename(expanded_filename, ext), '_compressed', ext ])
       compressor        = SWFRecompressor.new(expanded_filename, new_filename)
+      compressor.recompress!
+    end
+    
+    def recompress_to(filename, new_filename)
+      expanded_filename = File.expand_path(filename)
+      compressor        = SWFRecompressor.new(
+        File.expand_path(filename),
+        File.expand_path(new_filename))
       compressor.recompress!
     end
   end
