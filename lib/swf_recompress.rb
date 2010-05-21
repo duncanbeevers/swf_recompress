@@ -12,11 +12,10 @@ module SWFRecompress
   KZIP_MD5   = 'fdbf05e2bd12b16e899df0f3b6a3e87d'
   KZIP_PATH  = '/dl/kenutils/kzipmix-20091108-darwin.tar.gz'
   KZIP_ABOUT = <<-END_KZIP_ABOUT
-\tkzip by Ken Silverman: http://advsys.net/ken/utils.htm
-\tMac OS X and Linux binaries maintained by Jonathan Fowler: http://www.jonof.id.au/
-Please download and install kzip binary at
-\t#{File.expand_path(File.join(ROOT, 'lib/kzip'))}
+  kzip by Ken Silverman: http://advsys.net/ken/utils.htm
+  Mac OS X and Linux binaries maintained by Jonathan Fowler: http://www.jonof.id.au/
 END_KZIP_ABOUT
+  KZIP_INSTALL_TEXT = "  Install kzip binary to #{File.expand_path(File.join(ROOT, 'lib/kzip'))}"
 
   class Tempfile
     def self.open(temp_stem, write_mode = nil)
@@ -179,7 +178,7 @@ END_KZIP_ABOUT
           end
         end
       rescue => e
-        raise "Unable to acquire kzip utility: #{e.message}\n#{KZIP_ABOUT}"
+        raise "Unable to acquire kzip utility: #{e.message}\n#{KZIP_ABOUT}#{KZIP_INSTALL_TEXT}"
       end
     end
     
