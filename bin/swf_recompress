@@ -9,6 +9,9 @@ OptionParser.new do |opts|
   opts.on('-i', '--in-place', 'Compress the swf in-place, replacing the original file') do
     options[:use_input_filename] = true
   end
+  opts.on('-a', '--acquire-kzip', 'Download kzip tool') do
+    options[:acquire_kzip] = true
+  end
   opts.on_tail("-h", "--help", "Show this message") do
     puts opts
     exit
@@ -18,15 +21,33 @@ end.parse!(ARGV)
 options[:input_filename] = ARGV[0]
 options[:output_filename] = ARGV[0] if options[:use_input_filename]
 
+def require_kzip!
+  if !SWFRecompress.kzip_available?
+    puts "Run with --acquire-kzip to download the kzip tool\n#{SWFRecompress::KZIP_ABOUT}"
+    exit 1
+  end
+end
+
 begin
+  if options[:acquire_kzip]
+    if SWFRecompress.kzip_available?
+      puts "kzip already available"
+    else
+      SWFRecompress.acquire_kzip
+      puts "Installed lib/kzip"
+    end
+  end
+  
   if options[:output_filename]
+    require_kzip!
     SWFRecompress.recompress_to(options[:input_filename], options[:output_filename])
   elsif options[:input_filename]
+    require_kzip!
     SWFRecompress.recompress(options[:input_filename])
   else
-    raise "Please specify a swf file to recompress"
+    raise "Please specify a swf file to recompress" unless options[:acquire_kzip]
   end
-rescue
-  puts "There was an error recompressing #{options[:input_filename].inspect}"
+rescue => e
+  puts "There was an error recompressing #{options[:input_filename].inspect}\n#{e}"
   exit 1
 end

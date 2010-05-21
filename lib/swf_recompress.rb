@@ -1,14 +1,25 @@
 module SWFRecompress
-  VERSION = "0.0.5"
+  VERSION = "0.0.6"
   
   require 'fileutils'
   require 'pathname'
   require 'tempfile'
   
-  ROOT    = File.join(File.dirname(__FILE__), '..')
-  TMP_DIR = Dir::tmpdir
+  ROOT       = File.join(File.dirname(__FILE__), '..')
+  TMP_DIR    = Dir::tmpdir
+  
+  KZIP_HOST  = 'static.jonof.id.au'
+  KZIP_MD5   = 'fdbf05e2bd12b16e899df0f3b6a3e87d'
+  KZIP_PATH  = '/dl/kenutils/kzipmix-20091108-darwin.tar.gz'
+  KZIP_ABOUT = <<-END_KZIP_ABOUT
+\tkzip by Ken Silverman: http://advsys.net/ken/utils.htm
+\tMac OS X and Linux binaries maintained by Jonathan Fowler: http://www.jonof.id.au/
+Please download and install kzip binary at
+\t#{File.expand_path(File.join(ROOT, 'lib/kzip'))}
+END_KZIP_ABOUT
+
   class Tempfile
-    def self.open(temp_stem)
+    def self.open(temp_stem, write_mode = nil)
       begin
         instance_tmp_dir = nil
         begin
@@ -19,14 +30,14 @@ module SWFRecompress
         temp_filename = Pathname.new(
             File.expand_path(File.join(instance_tmp_dir, '%s%s' % [ File.basename(temp_stem, ext), ext ]))
           ).relative_path_from(Pathname.new(Dir.pwd))
-        File.open(temp_filename, 'w') do |f|
+        File.open(temp_filename, write_mode || 'w') do |f|
           yield(f)
         end
       rescue => e
-        puts "Error: #{e}"
+        raise "Error during Tempfile open #{e.message}"
       ensure
         FileUtils.rm(temp_filename)
-        FileUtils.rmdir(instance_tmp_dir)
+        FileUtils.rm_rf(instance_tmp_dir)
       end
     end
   end
@@ -43,7 +54,7 @@ module SWFRecompress
     
     def recompress!
       with_tempfiles do
-        execute_commands(swf_extract, kzip_data, swf_inject)
+        SWFRecompress.execute(swf_extract, kzip_data, swf_inject)
       end
     end
     
@@ -97,26 +108,19 @@ module SWFRecompress
     end
     
     def java(*args)
-      execute('java', '-classpath', 'src', *args)
+      command('java', '-classpath', 'src', *args)
     end
     
     def kzip(*args)
-      execute('lib/kzip', *args)
+      command('lib/kzip', *args)
     end
     
     def zip(*args)
-      execute('zip', *args)
+      command('zip', *args)
     end
     
-    def execute(*args)
-      args.map { |arg| '"%s"' % arg }.join(' ')
-    end
-    
-    def execute_commands(*commands)
-      execution = commands.join(' && ')
-      commands.each do |command|
-        puts `#{command}`
-      end
+    def command(*args)
+      SWFRecompress.command(*args)
     end
   end
   
@@ -136,6 +140,64 @@ module SWFRecompress
         File.expand_path(filename),
         File.expand_path(new_filename))
       compressor.recompress!
+    end
+    
+    def execute(*ramulons)
+      execution = ramulons.join(' && ')
+      results = ramulons.map { |command| `#{command} 2&> /dev/null` }
+      puts results.join("\n")
+      results
+    end
+    
+    def command(*args)
+      args.map { |arg| '"%s"' % arg }.join(' ')
+    end
+    
+    def kzip_available?
+      File.exists?('lib/kzip')
+    end
+    
+    def acquire_kzip
+      begin
+        Tempfile.open('kzipmix.tar.gz', 'wb') do |f|
+          begin
+            download_kzipmix(f)
+          rescue => e
+            raise "There was an error downloading kzipmix"
+          end
+          extracted_kzip_filename = extract_kzipmix(f)
+          if File.exists?(extracted_kzip_filename)
+            require 'digest/md5'
+            extracted_kzip_md5 = Digest::MD5.hexdigest(File.read(extracted_kzip_filename))
+            if KZIP_MD5 == extracted_kzip_md5
+              FileUtils.cp(extracted_kzip_filename, File.expand_path(File.join(ROOT, 'lib/kzip')))
+            else
+              raise "The MD5 of the downloaded kzip #{extracted_kzip_md5} did not match the expected MD5 #{KZIP_MD5}"
+            end
+          else
+            raise "Failed to extract kzip from the downloaded kzipmix archive"
+          end
+        end
+      rescue => e
+        raise "Unable to acquire kzip utility: #{e.message}\n#{KZIP_ABOUT}"
+      end
+    end
+    
+    private
+    def download_kzipmix(f)
+      require 'net/http'
+      Net::HTTP.start(KZIP_HOST) do |http|
+        f.write(http.get(KZIP_PATH).body)
+        f.close
+      end
+    end
+    
+    def extract_kzipmix(f)
+      fdir = Pathname.new(File.dirname(f.path))
+      Dir.chdir(fdir) do
+        execute(command('tar', 'xvzf', Pathname.new(f.path).relative_path_from(fdir), '--include', '*/kzip', '-s', '/.*kzip$/kzip/'))
+      end
+      File.join(File.dirname(f.path), 'kzip')
     end
   end
   
