@@ -4,10 +4,11 @@ require 'optparse'
 require File.join(File.dirname(__FILE__), '../lib/swf_recompress')
 
 ACQUIRE_KZIP_TEXT = "Run with --acquire-kzip to download the kzip tool"
+SWF_RECOMPRESS_BANNER = "swf_recompress version #{SWFRecompress::VERSION}#{SWFRecompress.kzip_available? ? '' : ', but no kzip installed'}"
 
 options = {}
 OptionParser.new do |opts|
-  opts.banner = "Recompress a swf file with more aggressive DEFLATE settings\nUsage: swf_recompress [options] SWF_FILENAME"
+  opts.banner = "#{SWF_RECOMPRESS_BANNER}\nRecompress a swf file with more aggressive DEFLATE settings\nUsage: swf_recompress [options] SWF_FILENAME"
   opts.on('-i', '--in-place', 'Compress the swf in-place, replacing the original file') do
     options[:use_input_filename] = true
   end
@@ -15,8 +16,7 @@ OptionParser.new do |opts|
     options[:acquire_kzip] = true
   end
   opts.on_tail('-v', '--version', 'Show version & contributors') do
-    kzip_installed_text = SWFRecompress.kzip_available? ? '' : ', but no kzip installed'
-    puts "swf_recompress version #{SWFRecompress::VERSION}#{kzip_installed_text}"
+    puts SWF_RECOMPRESS_BANNER
     puts "  Based on Jos-Iven Hirth's \"Improving SWF Compression\": http://kaioa.com/node/87"
     puts SWFRecompress::KZIP_ABOUT
     if !SWFRecompress.kzip_available?
