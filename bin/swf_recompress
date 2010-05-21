@@ -23,7 +23,7 @@ options[:output_filename] = ARGV[0] if options[:use_input_filename]
 
 def require_kzip!
   if !SWFRecompress.kzip_available?
-    puts "Run with --acquire-kzip to download the kzip tool\n#{SWFRecompress::KZIP_ABOUT}"
+    $stderr.puts "Run with --acquire-kzip to download the kzip tool\n#{SWFRecompress::KZIP_ABOUT}"
     exit 1
   end
 end
@@ -45,10 +45,10 @@ begin
     require_kzip!
     SWFRecompress.recompress(options[:input_filename])
   elsif !options[:acquire_kzip]
-    puts "Please specify a swf file to recompress"
+    $stderr.puts "Please specify a swf file to recompress"
     exit 1
   end
 rescue => e
-  puts "There was an error recompressing #{options[:input_filename].inspect}\n#{e}"
+  $stderr.puts "There was an error recompressing #{options[:input_filename].inspect}\n#{e}"
   exit 1
 end
