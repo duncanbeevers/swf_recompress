@@ -153,7 +153,12 @@ END_KZIP_ABOUT
     end
     
     def kzip_available?
-      File.exists?('lib/kzip')
+      @kzip_available ||= File.exists?('lib/kzip') && KZIP_MD5 == kzip_md5('lib/kzip')
+    end
+    
+    def kzip_md5(kzip_filename)
+      require 'digest/md5'
+      Digest::MD5.hexdigest(File.read(kzip_filename))
     end
     
     def acquire_kzip
@@ -166,8 +171,7 @@ END_KZIP_ABOUT
           end
           extracted_kzip_filename = extract_kzipmix(f)
           if File.exists?(extracted_kzip_filename)
-            require 'digest/md5'
-            extracted_kzip_md5 = Digest::MD5.hexdigest(File.read(extracted_kzip_filename))
+            extracted_kzip_md5 = kzip_md5(extracted_zip_filename)
             if KZIP_MD5 == extracted_kzip_md5
               FileUtils.cp(extracted_kzip_filename, File.expand_path(File.join(ROOT, 'lib/kzip')))
             else
