@@ -8,7 +8,7 @@ SWF_RECOMPRESS_BANNER = "swf_recompress version #{SWFRecompress::VERSION}#{SWFRe
 
 options = {}
 OptionParser.new do |opts|
-  opts.banner = "#{SWF_RECOMPRESS_BANNER}\nRecompress a swf file with more aggressive DEFLATE settings\nUsage: swf_recompress [options] SWF_FILENAME"
+  opts.banner = "#{SWF_RECOMPRESS_BANNER}\nRecompress a swf file with more aggressive DEFLATE settings\nUsage: swf_recompress [options] swf_filename [output_swf_filename]"
   opts.on('-i', '--in-place', 'Compress the swf in-place, replacing the original file') do
     options[:use_input_filename] = true
   end
@@ -26,6 +26,8 @@ OptionParser.new do |opts|
   end
   opts.on_tail("-h", "--help", "Show this message") do
     puts opts
+    puts "If only one filename is given and the -i flag is not supplied, a new swf"
+    puts "with the suffix '_compressed' will be created alongside the original file."
     exit
   end
 end.parse!(ARGV)
