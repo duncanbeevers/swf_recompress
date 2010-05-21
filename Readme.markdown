@@ -1,12 +1,8 @@
 Maximize SWF Compression
 =
 
-***
-
 Minimize bandwidth costs and reduce page latency by decreasing the total size of your
 swf assets.
-
-***
 
 Usage
 -
@@ -19,15 +15,11 @@ Usage
 If only one filename is given and the -i flag is not supplied, a new swf
 with the suffix <tt>_compressed</tt> will be created alongside the original file.
 
-***
-
 Thanks
 -
 * Jos-Iven Hirth's [Improving SWF Compression](http://kaioa.com/node/87)
 * Ken Silverman's [kzip](http://advsys.net/ken/utils.htm)
 * Jonathan Fowler's [Mac OS X and Linux binaries](http://www.jonof.id.au/)
-
-***
 
 License
 -
