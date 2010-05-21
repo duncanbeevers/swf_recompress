@@ -44,8 +44,9 @@ begin
   elsif options[:input_filename]
     require_kzip!
     SWFRecompress.recompress(options[:input_filename])
-  else
-    raise "Please specify a swf file to recompress" unless options[:acquire_kzip]
+  elsif !options[:acquire_kzip]
+    puts "Please specify a swf file to recompress"
+    exit 1
   end
 rescue => e
   puts "There was an error recompressing #{options[:input_filename].inspect}\n#{e}"
