@@ -1,5 +1,5 @@
 module SWFRecompress
-  VERSION = "0.0.6"
+  VERSION = "0.0.7"
   
   require 'fileutils'
   require 'pathname'
@@ -171,7 +171,7 @@ END_KZIP_ABOUT
           end
           extracted_kzip_filename = extract_kzipmix(f)
           if File.exists?(extracted_kzip_filename)
-            extracted_kzip_md5 = kzip_md5(extracted_zip_filename)
+            extracted_kzip_md5 = kzip_md5(extracted_kzip_filename)
             if KZIP_MD5 == extracted_kzip_md5
               FileUtils.cp(extracted_kzip_filename, File.expand_path(File.join(ROOT, 'lib/kzip')))
             else
