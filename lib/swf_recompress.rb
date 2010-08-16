@@ -15,8 +15,9 @@ module SWFRecompress
   kzip by Ken Silverman: http://advsys.net/ken/utils.htm
   Mac OS X and Linux binaries maintained by Jonathan Fowler: http://www.jonof.id.au/
 END_KZIP_ABOUT
-  KZIP_INSTALL_TEXT = "  Install kzip binary to #{File.expand_path(File.join(ROOT, 'lib/kzip'))}"
-
+  LIB_KZIP  = File.expand_path(File.join(ROOT, 'lib/kzip'))
+  KZIP_INSTALL_TEXT = "  Install kzip binary to #{LIB_KZIP}"
+  
   class Tempfile
     def self.open(temp_stem, write_mode = nil)
       begin
@@ -111,7 +112,7 @@ END_KZIP_ABOUT
     end
     
     def kzip(*args)
-      command('lib/kzip', *args)
+      command(LIB_KZIP, *args)
     end
     
     def zip(*args)
@@ -153,7 +154,7 @@ END_KZIP_ABOUT
     end
     
     def kzip_available?
-      @kzip_available ||= File.exists?('lib/kzip') && KZIP_MD5 == kzip_md5('lib/kzip')
+      @kzip_available ||= File.exists?(LIB_KZIP) && KZIP_MD5 == kzip_md5(LIB_KZIP)
     end
     
     def kzip_md5(kzip_filename)
@@ -173,7 +174,7 @@ END_KZIP_ABOUT
           if File.exists?(extracted_kzip_filename)
             extracted_kzip_md5 = kzip_md5(extracted_kzip_filename)
             if KZIP_MD5 == extracted_kzip_md5
-              FileUtils.cp(extracted_kzip_filename, File.expand_path(File.join(ROOT, 'lib/kzip')))
+              FileUtils.cp(extracted_kzip_filename, LIB_KZIP)
             else
               raise "The MD5 of the downloaded kzip #{extracted_kzip_md5} did not match the expected MD5 #{KZIP_MD5}"
             end
