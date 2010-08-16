@@ -37,7 +37,7 @@ options[:output_filename] = ARGV[0] if options[:use_input_filename]
 
 def require_kzip!
   if !SWFRecompress.kzip_available?
-    $stderr.puts "No kzip installed"
+    $stderr.puts "swf_recompress error - No kzip installed"
     $stderr.puts "#{ACQUIRE_KZIP_TEXT}\n#{SWFRecompress::KZIP_ABOUT}"
     exit 1
   end
