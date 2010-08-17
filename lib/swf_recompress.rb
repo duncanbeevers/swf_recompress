@@ -1,5 +1,5 @@
 module SWFRecompress
-  VERSION = "0.0.8"
+  VERSION = "0.0.9"
   
   require 'fileutils'
   require 'pathname'
@@ -175,6 +175,7 @@ END_KZIP_ABOUT
             extracted_kzip_md5 = kzip_md5(extracted_kzip_filename)
             if KZIP_MD5 == extracted_kzip_md5
               FileUtils.cp(extracted_kzip_filename, LIB_KZIP)
+              File.chmod(0755, LIB_KZIP)
             else
               raise "The MD5 of the downloaded kzip #{extracted_kzip_md5} did not match the expected MD5 #{KZIP_MD5}"
             end
